@@ -1,77 +1,138 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Prediction Result</title>
 
-    <link rel="stylesheet" href="/static/css/style.css">
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+<title>Prediction Result</title>
 
-    <!-- Chart.js -->
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<link rel="stylesheet" href="/static/css/style.css">
+
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+
+<!-- Chart.js -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
 </head>
+
 <body>
 
 <div class="container">
 
-    <h2>🌾 Crop Yield Prediction</h2>
+<h2>🌾 Crop Yield Prediction</h2>
 
-    <div class="result-box">
-        {{ explanation }}
-    </div>
+<!-- RESULT TEXT -->
+<div class="result-box" id="resultText">
+{{ explanation }}
+</div>
 
-    <!-- GRAPH -->
-    <canvas id="yieldChart" height="120"></canvas>
+<br>
 
-    <a class="back-btn" href="/dashboard">⬅ Back to Dashboard</a>
+<!-- VOICE BUTTON -->
+<button onclick="speakResult()" style="margin-bottom:25px;">
+🔊 Listen Prediction
+</button>
+
+<!-- GRAPH -->
+<canvas id="yieldChart" height="120"></canvas>
+
+<br>
+
+<a class="back-btn" href="/dashboard">⬅ Back to Dashboard</a>
 
 </div>
 
+
 <script>
-    const mlYield = {{ ml_yield | safe }};
-    const qmlYield = {{ qml_yield | safe }};
 
-    const ctx = document.getElementById("yieldChart").getContext("2d");
+// ================= SAFE FLASK VARIABLES =================
 
-    new Chart(ctx, {
-        type: "bar",
-        data: {
-            labels: ["Classical ML", "Quantum ML"],
-            datasets: [{
-                label: "Predicted Yield",
-                data: [mlYield, qmlYield],
-                backgroundColor: [
-                    "rgba(37, 99, 235, 0.8)",
-                    "rgba(16, 185, 129, 0.8)"
-                ],
-                borderRadius: 10
-            }]
-        },
-        options: {
-            responsive: true,
-            animation: {
-                duration: 1200,
-                easing: "easeOutQuart"
-            },
-            plugins: {
-                legend: {
-                    display: false
-                }
-            },
-            scales: {
-                y: {
-                    beginAtZero: true,
-                    grid: {
-                        color: "#e5e7eb"
-                    }
-                },
-                x: {
-                    grid: {
-                        display: false
-                    }
-                }
-            }
-        }
-    });
+const mlYield = JSON.parse('{{ ml_yield | tojson }}');
+const qmlYield = JSON.parse('{{ qml_yield | tojson }}');
+const userLanguage = "{{ session.get('language','en') }}";
+
+
+// ================= GRAPH =================
+
+const ctx = document.getElementById("yieldChart").getContext("2d");
+
+new Chart(ctx,{
+type:"bar",
+
+data:{
+labels:["Classical ML","Quantum ML"],
+
+datasets:[{
+label:"Predicted Yield",
+
+data:[mlYield,qmlYield],
+
+backgroundColor:[
+"rgba(37,99,235,0.8)",
+"rgba(16,185,129,0.8)"
+],
+
+borderRadius:10
+}]
+},
+
+options:{
+responsive:true,
+
+animation:{
+duration:1200,
+easing:"easeOutQuart"
+},
+
+plugins:{
+legend:{display:false}
+},
+
+scales:{
+y:{
+beginAtZero:true,
+grid:{color:"#e5e7eb"}
+},
+
+x:{
+grid:{display:false}
+}
+}
+}
+
+});
+
+
+// ================= VOICE OUTPUT =================
+
+function speakResult(){
+
+const text=document.getElementById("resultText").innerText;
+
+const speech=new SpeechSynthesisUtterance(text);
+
+if(userLanguage==="hi"){
+speech.lang="hi-IN";
+}
+else if(userLanguage==="ta"){
+speech.lang="ta-IN";
+}
+else if(userLanguage==="te"){
+speech.lang="te-IN";
+}
+else if(userLanguage==="kn"){
+speech.lang="kn-IN";
+}
+else{
+speech.lang="en-US";
+}
+
+speech.rate=1;
+speech.pitch=1;
+speech.volume=1;
+
+window.speechSynthesis.speak(speech);
+
+}
+
 </script>
 
 </body>

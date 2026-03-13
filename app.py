@@ -91,10 +91,18 @@ def language():
 
 @app.route("/dashboard")
 def dashboard():
+
     if "user" not in session:
         return redirect(url_for("login"))
-    return render_template("dashboard.html")
 
+    language = session.get("language","en")
+    texts = LANGUAGES.get(language, LANGUAGES["en"])
+
+    return render_template(
+        "dashboard.html",
+        texts=texts,
+        language=language
+    )
 # =====================================================
 # 1️⃣ LOCATION INPUT
 # =====================================================
@@ -174,45 +182,77 @@ def input_manual():
 
     return render_template("input_manual.html")
 
-# =====================================================
+# ====================================================
 # 3️⃣ IMAGE INPUT
 # =====================================================
 @app.route("/input/image", methods=["GET", "POST"])
 def input_image():
+
     if "user" not in session:
         return redirect(url_for("login"))
 
     if request.method == "POST":
-        crop = request.form["crop"]
+
+        # ---- CHECK FILE ----
+        if "image" not in request.files:
+            return "No image file provided"
+
         image = request.files["image"]
 
+        if image.filename == "":
+            return "No image selected"
+
+        crop = request.form.get("crop", "Unknown")
+
+        # ---- SAVE IMAGE ----
         filename = secure_filename(image.filename)
         path = os.path.join(app.config["UPLOAD_FOLDER"], filename)
-        image.save(path)
 
-        img = Image.open(path).convert("L")
-        arr = np.array(img)
+        try:
+            image.save(path)
+        except:
+            return "Image upload failed"
 
-        brightness = np.mean(arr) / 255
-        size_feature = arr.size / 1e6
+        # ---- IMAGE PROCESSING ----
+        try:
+            img = Image.open(path).convert("L")
+            arr = np.array(img)
 
+            brightness = np.mean(arr) / 255
+            size_feature = arr.size / 1000000
+
+        except:
+            return "Invalid image file"
+
+        # ---- ASSUMED ENVIRONMENT ----
         temperature = 28
         rainfall = 120
 
+        # ---- FEATURE VECTOR ----
         X = [[brightness, size_feature, 0.5, 0.3]]
 
+        # ---- ML MODEL ----
         ml = CropYieldML()
         ml.train(X, [3.1])
         ml_pred = float(ml.predict(X))
 
+        # ---- QML MODEL ----
         qml = CropYieldQML()
         qml_pred = float(qml.predict(X))
 
+        # ---- EXPLANATION ----
+        explanation = explain_prediction(
+            crop,
+            temperature,
+            rainfall,
+            ml_pred,
+            qml_pred,
+            session.get("language", "en")
+        )
+
+        # ---- SAVE RESULT ----
         session["result_data"] = {
-            "explanation": explain_prediction(
-                crop, temperature, rainfall, ml_pred, qml_pred,
-                session.get("language", "en")
-            ),
+            "explanation": explanation,
             "ml_yield": ml_pred,
             "qml_yield": qml_pred
         }

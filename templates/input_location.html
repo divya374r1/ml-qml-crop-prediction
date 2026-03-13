@@ -2,10 +2,14 @@
 <html>
 <head>
     <title>{{ texts.title_location }}</title>
-    
+
     <link rel="stylesheet" href="/static/css/style.css">
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+
+    <!-- Voice Script -->
+    <script src="{{ url_for('static', filename='js/voice.js') }}"></script>
 </head>
+
 <body>
 
 <h2>📍 {{ texts.title_location }}</h2>
@@ -14,20 +18,36 @@
 
     <!-- ================= STATE ================= -->
     <label>{{ texts.state }}:</label><br>
+
     <select id="state" name="state" required>
         <option value="">{{ texts.select_state }}</option>
-    </select><br><br>
+    </select>
+
+    <button type="button" onclick="startVoiceInput('state')" style="margin-top:5px;">
+        🎤 Speak State
+    </button>
+
+    <br><br>
 
     <!-- ================= DISTRICT ================= -->
     <label>{{ texts.district }}:</label><br>
+
     <select id="district" name="district" required>
         <option value="">{{ texts.select_district }}</option>
-    </select><br><br>
+    </select>
+
+    <button type="button" onclick="startVoiceInput('district')" style="margin-top:5px;">
+        🎤 Speak District
+    </button>
+
+    <br><br>
 
     <!-- ================= CROP ================= -->
     <label>{{ texts.crop }}:</label><br>
+
     <select id="crop_select" onchange="toggleOtherCrop()" required>
         <option value="">{{ texts.select_crop }}</option>
+
         <option value="Rice">Rice</option>
         <option value="Wheat">Wheat</option>
         <option value="Maize">Maize</option>
@@ -43,78 +63,135 @@
         <option value="Sugarcane">Sugarcane</option>
         <option value="Tea">Tea</option>
         <option value="Coffee">Coffee</option>
+
         <option value="Other">{{ texts.other }}</option>
-    </select><br><br>
+
+    </select>
+
+    <br><br>
 
     <!-- ================= OTHER CROP ================= -->
+
     <div id="other_crop_div" style="display:none;">
+
         <label>{{ texts.crop }}:</label><br>
-        <input type="text" id="other_crop" placeholder="{{ texts.crop }}"><br><br>
+
+        <input type="text" id="other_crop" placeholder="{{ texts.crop }}">
+
+        <button type="button" onclick="startVoiceInput('other_crop')" style="margin-top:5px;">
+            🎤 Speak Crop
+        </button>
+
+        <br><br>
+
     </div>
 
-    <!-- FINAL CROP SENT TO BACKEND -->
+    <!-- FINAL VALUE SENT TO BACKEND -->
+
     <input type="hidden" id="final_crop" name="crop" required>
 
     <button type="submit">{{ texts.continue }}</button>
+
 </form>
 
 <br>
+
 <a href="/dashboard">⬅ {{ texts.back }}</a>
 
 <script>
+
 let stateDistrictMap = {};
 
-// ================= STATE & DISTRICT =================
-fetch("/static/data/states-and-districts.json")
-    .then(response => response.json())
-    .then(data => {
-        data.states.forEach(item => {
-            stateDistrictMap[item.state] = item.districts;
-        });
 
-        const stateSelect = document.getElementById("state");
-        Object.keys(stateDistrictMap).sort().forEach(state => {
-            const option = document.createElement("option");
-            option.value = state;
-            option.text = state;
-            stateSelect.appendChild(option);
-        });
+// ================= LOAD STATES =================
+
+fetch("/static/data/states-and-districts.json")
+.then(response => response.json())
+.then(data => {
+
+    data.states.forEach(item => {
+
+        stateDistrictMap[item.state] = item.districts;
+
     });
 
-// Update districts on state change
+    const stateSelect = document.getElementById("state");
+
+    Object.keys(stateDistrictMap).sort().forEach(state => {
+
+        const option = document.createElement("option");
+
+        option.value = state;
+        option.text = state;
+
+        stateSelect.appendChild(option);
+
+    });
+
+});
+
+
+// ================= DISTRICT UPDATE =================
+
 document.getElementById("state").addEventListener("change", function () {
+
     const districtSelect = document.getElementById("district");
+
     districtSelect.innerHTML = "<option value=''>{{ texts.select_district }}</option>";
 
     const selectedState = this.value;
+
     if (stateDistrictMap[selectedState]) {
+
         stateDistrictMap[selectedState].forEach(district => {
+
             const option = document.createElement("option");
+
             option.value = district;
             option.text = district;
+
             districtSelect.appendChild(option);
+
         });
+
     }
+
 });
+
 
 // ================= CROP LOGIC =================
-function toggleOtherCrop() {
+
+function toggleOtherCrop(){
+
     const cropSelect = document.getElementById("crop_select");
+
     const otherDiv = document.getElementById("other_crop_div");
+
     const finalCrop = document.getElementById("final_crop");
 
-    if (cropSelect.value === "Other") {
+    if(cropSelect.value === "Other"){
+
         otherDiv.style.display = "block";
+
         finalCrop.value = "";
-    } else {
+
+    }else{
+
         otherDiv.style.display = "none";
+
         finalCrop.value = cropSelect.value;
+
     }
+
 }
 
-document.getElementById("other_crop").addEventListener("input", function () {
+
+document.getElementById("other_crop").addEventListener("input", function(){
+
     document.getElementById("final_crop").value = this.value;
+
 });
+
 </script>
 
 </body>

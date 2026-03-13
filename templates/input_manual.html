@@ -2,10 +2,16 @@
 <html>
 <head>
     <title>Manual Input</title>
-    
+
     <link rel="stylesheet" href="/static/css/style.css">
+
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+
+    <!-- Voice Script -->
+    <script src="{{ url_for('static', filename='js/voice.js') }}"></script>
+
 </head>
+
 <body>
 
 <h2>✍️ Manual Crop Input</h2>
@@ -13,33 +19,64 @@
 <form method="POST">
 
     <!-- ================= TEMPERATURE ================= -->
+
     <label>Temperature:</label><br>
-    <select name="temperature" required>
+
+    <select id="temperature" name="temperature" required>
         <option value="low">Low</option>
         <option value="medium">Medium</option>
         <option value="high">High</option>
-    </select><br><br>
+    </select>
+
+    <button type="button" onclick="startVoiceInput('temperature')" style="margin-top:5px;">
+        🎤 Speak Temperature
+    </button>
+
+    <br><br>
+
 
     <!-- ================= RAINFALL ================= -->
+
     <label>Rainfall:</label><br>
-    <select name="rainfall" required>
+
+    <select id="rainfall" name="rainfall" required>
         <option value="low">Low</option>
         <option value="medium">Medium</option>
         <option value="high">High</option>
-    </select><br><br>
+    </select>
+
+    <button type="button" onclick="startVoiceInput('rainfall')" style="margin-top:5px;">
+        🎤 Speak Rainfall
+    </button>
+
+    <br><br>
+
 
     <!-- ================= SOIL ================= -->
+
     <label>Soil Type:</label><br>
-    <select name="soil" required>
+
+    <select id="soil" name="soil" required>
         <option value="sandy">Sandy</option>
         <option value="clay">Clay</option>
         <option value="loamy">Loamy</option>
-    </select><br><br>
+    </select>
+
+    <button type="button" onclick="startVoiceInput('soil')" style="margin-top:5px;">
+        🎤 Speak Soil
+    </button>
+
+    <br><br>
+
 
     <!-- ================= CROP TYPE ================= -->
+
     <label>Crop Type:</label><br>
+
     <select id="crop_select" onchange="toggleOtherCrop()" required>
+
         <option value="">-- Select Crop --</option>
+
         <option value="Rice">Rice</option>
         <option value="Wheat">Wheat</option>
         <option value="Maize">Maize</option>
@@ -55,42 +92,78 @@
         <option value="Sugarcane">Sugarcane</option>
         <option value="Tea">Tea</option>
         <option value="Coffee">Coffee</option>
+
         <option value="Other">Other</option>
-    </select><br><br>
+
+    </select>
+
+    <br><br>
+
 
     <!-- ================= OTHER CROP ================= -->
+
     <div id="other_crop_div" style="display:none;">
+
         <label>Enter Crop Name:</label><br>
-        <input type="text" id="other_crop"><br><br>
+
+        <input type="text" id="other_crop">
+
+        <button type="button" onclick="startVoiceInput('other_crop')" style="margin-top:5px;">
+            🎤 Speak Crop
+        </button>
+
+        <br><br>
+
     </div>
 
+
     <!-- FINAL VALUE SENT -->
+
     <input type="hidden" id="final_crop" name="crop" required>
 
+
     <button type="submit">Submit Data</button>
+
 </form>
 
 <br>
+
 <a href="/dashboard">⬅ Back</a>
 
+
 <script>
-function toggleOtherCrop() {
+
+function toggleOtherCrop(){
+
     const cropSelect = document.getElementById("crop_select");
+
     const otherDiv = document.getElementById("other_crop_div");
+
     const finalCrop = document.getElementById("final_crop");
 
-    if (cropSelect.value === "Other") {
+    if(cropSelect.value === "Other"){
+
         otherDiv.style.display = "block";
+
         finalCrop.value = "";
-    } else {
+
+    }else{
+
         otherDiv.style.display = "none";
+
         finalCrop.value = cropSelect.value;
+
     }
+
 }
 
-document.getElementById("other_crop").addEventListener("input", function () {
+
+document.getElementById("other_crop").addEventListener("input", function(){
+
     document.getElementById("final_crop").value = this.value;
+
 });
+
 </script>
 
 </body>
