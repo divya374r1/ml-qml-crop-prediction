@@ -68,6 +68,31 @@ def login():
 
     return render_template("login.html")
 
+# ---------------- REGISTER ----------------
+@app.route("/register", methods=["GET", "POST"])
+def register():
+    if request.method == "POST":
+        username = request.form["username"]
+        password = request.form["password"]
+
+        conn = get_db()
+        cursor = conn.cursor()
+
+        try:
+            cursor.execute(
+                "INSERT INTO users (username, password) VALUES (?, ?)",
+                (username, password)
+            )
+            conn.commit()
+            conn.close()
+
+            return redirect(url_for("login"))
+
+        except:
+            conn.close()
+            return "User already exists"
+
+    return render_template("register.html")
 
 # ---------------- LANGUAGE ----------------
 @app.route("/language", methods=["GET", "POST"])
