@@ -1,115 +1,71 @@
 <!DOCTYPE html>
 <html>
 <head>
-
 <title>Dashboard</title>
 
 <link rel="stylesheet" href="/static/css/style.css">
-
 <script src="{{ url_for('static', filename='js/voice_assistant.js') }}"></script>
 
 </head>
 
 <body>
 
-<!-- HERO -->
 <div class="hero">
 <div class="hero-content">
-
 <h1>Crop Yield Prediction</h1>
-
 <p>Satellite Data • ML • Quantum ML</p>
-
 </div>
 </div>
 
 <div class="container">
 
 <div style="text-align:center;margin-bottom:30px;">
-
-<button onclick="startVoiceAssistant('{{ language }}')">
-
-🎤 {{ texts.speak_command }}
-
+<button onclick="startVoiceAssistant('{{ language | default('en') }}')">
+🎤 {{ texts.speak_command if texts else "Speak Command" }}
 </button>
-
 </div>
-
 
 <div class="card-grid">
 
-<!-- LOCATION -->
-
 <a href="/input/location" class="card">
-
 <img src="/static/images/crops/rice.jpg">
-
 <div class="card-content">
-
-<h3>📍 {{ texts.title_location }}</h3>
-
-<p>{{ texts.desc_location }}</p>
-
+<h3>📍 {{ texts.title_location if texts else "Location Based" }}</h3>
+<p>{{ texts.desc_location if texts else "Enter location details" }}</p>
 </div>
-
 </a>
-
-
-<!-- MANUAL -->
 
 <a href="/input/manual" class="card">
-
 <img src="/static/images/crops/wheat.jpg">
-
 <div class="card-content">
-
-<h3>✍ {{ texts.title_manual }}</h3>
-
-<p>{{ texts.desc_manual }}</p>
-
+<h3>✍ {{ texts.title_manual if texts else "Manual Input" }}</h3>
+<p>{{ texts.desc_manual if texts else "Enter manually" }}</p>
 </div>
-
 </a>
 
-
-<!-- IMAGE -->
-
 <a href="/input/image" class="card">
-
 <img src="/static/images/crops/maize.jpg">
-
 <div class="card-content">
-
-<h3>📷 {{ texts.title_image }}</h3>
-
-<p>{{ texts.desc_image }}</p>
-
+<h3>📷 {{ texts.title_image if texts else "Image Input" }}</h3>
+<p>{{ texts.desc_image if texts else "Upload image" }}</p>
 </div>
-
 </a>
 
 </div>
 
 <div style="text-align:center;margin-top:35px;">
-
-<a href="/logout">{{ texts.back }}</a>
-
+<a href="/logout">{{ texts.back if texts else "Logout" }}</a>
 </div>
 
 </div>
 
 <script>
-
 window.speechSynthesis.onvoiceschanged = function(){
-
-let message="{{ texts.welcome }}"
-
-let language="{{ language }}"
-
+let message="{{ texts.welcome if texts else 'Welcome' }}"
+let language="{{ language | default('en') }}"
 speakMessage(message,language)
-
 }
-
 </script>
+
 </body>
 </html>

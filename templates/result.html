@@ -5,11 +5,46 @@
 <title>Prediction Result</title>
 
 <link rel="stylesheet" href="/static/css/style.css">
-
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
-
-<!-- Chart.js -->
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<style>
+
+body {
+    font-family: 'Poppins', sans-serif;
+}
+
+.result-card {
+    background: white;
+    padding: 25px;
+    border-radius: 12px;
+    box-shadow: 0 10px 25px rgba(0,0,0,0.15);
+    margin-bottom: 25px;
+}
+
+.decision {
+    font-size: 20px;
+    font-weight: 600;
+    margin-bottom: 10px;
+}
+
+.good { color: #059669; }
+.medium { color: #d97706; }
+.bad { color: #dc2626; }
+
+.section {
+    margin-top: 15px;
+}
+
+.label {
+    font-weight: 600;
+}
+
+.value {
+    color: #111827;
+}
+
+</style>
 
 </head>
 
@@ -19,22 +54,64 @@
 
 <h2>🌾 Crop Yield Prediction</h2>
 
-<!-- RESULT TEXT -->
-<div class="result-box" id="resultText">
-{{ explanation }}
+<!-- ================= DECISION CARD ================= -->
+<div class="result-card">
+
+<div class="decision {{ 'good' if 'Good' in explanation else 'medium' if 'Moderate' in explanation else 'bad' }}">
+{{ explanation.split('.')[0] }}
 </div>
 
-<br>
+<div class="section">
+<span class="label">🌡 Temperature:</span>
+<span class="value"> {{ temperature }} °C</span>
+</div>
 
-<!-- VOICE BUTTON -->
-<button onclick="speakResult()" style="margin-bottom:25px;">
-🔊 Listen Prediction
-</button>
+<div class="section">
+<span class="label">🌧 Rainfall:</span>
+<span class="value"> {{ rainfall }} mm</span>
+</div>
 
-<!-- GRAPH -->
+</div>
+
+
+<!-- ================= YIELD CARD ================= -->
+<div class="result-card">
+
+<div class="section">
+<span class="label">📊 Classical ML Yield:</span>
+<span class="value"> {{ ml_yield }} tons</span>
+</div>
+
+<div class="section">
+<span class="label">⚛ Quantum ML Yield:</span>
+<span class="value"> {{ qml_yield }} tons</span>
+</div>
+
+</div>
+
+
+<!-- ================= ADVICE CARD ================= -->
+<div class="result-card">
+
+<div class="section">
+<span class="label">🧠 Recommendation:</span>
+</div>
+
+<p>
+{{ explanation }}
+</p>
+
+</div>
+
+
+<!-- ================= GRAPH ================= -->
 <canvas id="yieldChart" height="120"></canvas>
 
 <br>
+
+<button onclick="speakResult()" style="margin-bottom:25px;">
+🔊 Listen Prediction
+</button>
 
 <a class="back-btn" href="/dashboard">⬅ Back to Dashboard</a>
 
@@ -43,91 +120,52 @@
 
 <script>
 
-// ================= SAFE FLASK VARIABLES =================
-
+// ================= VALUES =================
 const mlYield = JSON.parse('{{ ml_yield | tojson }}');
 const qmlYield = JSON.parse('{{ qml_yield | tojson }}');
 const userLanguage = "{{ session.get('language','en') }}";
 
 
 // ================= GRAPH =================
-
 const ctx = document.getElementById("yieldChart").getContext("2d");
 
 new Chart(ctx,{
 type:"bar",
-
 data:{
 labels:["Classical ML","Quantum ML"],
-
 datasets:[{
-label:"Predicted Yield",
-
+label:"Yield (tons)",
 data:[mlYield,qmlYield],
-
 backgroundColor:[
-"rgba(37,99,235,0.8)",
-"rgba(16,185,129,0.8)"
+"rgba(59,130,246,0.85)",
+"rgba(16,185,129,0.85)"
 ],
-
 borderRadius:10
 }]
 },
-
 options:{
 responsive:true,
-
-animation:{
-duration:1200,
-easing:"easeOutQuart"
-},
-
-plugins:{
-legend:{display:false}
-},
-
+plugins:{ legend:{display:false} },
 scales:{
-y:{
-beginAtZero:true,
-grid:{color:"#e5e7eb"}
-},
-
-x:{
-grid:{display:false}
+y:{ beginAtZero:true },
+x:{}
 }
 }
-}
-
 });
 
 
-// ================= VOICE OUTPUT =================
-
+// ================= VOICE =================
 function speakResult(){
 
-const text=document.getElementById("resultText").innerText;
+const text=document.body.innerText;
 
 const speech=new SpeechSynthesisUtterance(text);
 
-if(userLanguage==="hi"){
-speech.lang="hi-IN";
-}
-else if(userLanguage==="ta"){
-speech.lang="ta-IN";
-}
-else if(userLanguage==="te"){
-speech.lang="te-IN";
-}
-else if(userLanguage==="kn"){
-speech.lang="kn-IN";
-}
-else{
-speech.lang="en-US";
-}
-
-speech.rate=1;
-speech.pitch=1;
-speech.volume=1;
+if(userLanguage==="hi"){ speech.lang="hi-IN"; }
+else if(userLanguage==="ta"){ speech.lang="ta-IN"; }
+else if(userLanguage==="te"){ speech.lang="te-IN"; }
+else if(userLanguage==="kn"){ speech.lang="kn-IN"; }
+else{ speech.lang="en-US"; }
 
 window.speechSynthesis.speak(speech);
 

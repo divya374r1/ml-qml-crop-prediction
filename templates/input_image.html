@@ -1,47 +1,112 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Crop Image Prediction</title>
+<title>Crop Image Prediction</title>
+
+<link rel="stylesheet" href="/static/css/style.css">
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+
+<style>
+body {
+    font-family: 'Poppins', sans-serif;
+    background: linear-gradient(to right, #eef2f3, #dfe9f3);
+}
+
+.container {
+    width: 420px;
+    margin: 60px auto;
+    background: white;
+    padding: 30px;
+    border-radius: 12px;
+    box-shadow: 0 10px 25px rgba(0,0,0,0.15);
+}
+
+h2 {
+    text-align: center;
+    margin-bottom: 20px;
+}
+
+input, button {
+    width: 100%;
+    padding: 10px;
+    margin-top: 8px;
+    border-radius: 6px;
+    border: 1px solid #ccc;
+}
+
+button {
+    background: #2563eb;
+    color: white;
+    border: none;
+    cursor: pointer;
+    font-weight: 600;
+}
+
+button:hover {
+    background: #1e40af;
+}
+
+.preview {
+    margin-top: 15px;
+    text-align: center;
+}
+
+.preview img {
+    max-width: 100%;
+    height: 200px;
+    object-fit: cover;
+    border-radius: 10px;
+    display: none;
+}
+
+.back {
+    text-align: center;
+    margin-top: 20px;
+}
+</style>
+
 </head>
 
-<body style="font-family:Arial; background:#f4f4f4;">
+<body>
 
-<div style="width:400px; margin:60px auto; background:white; padding:25px; border-radius:8px; box-shadow:0 0 10px rgba(0,0,0,0.2);">
+<div class="container">
 
-<h2 style="text-align:center;">📷 Crop Image Prediction</h2>
+<h2>📷 {{ texts.title_image if texts else "Crop Image Prediction" }}</h2>
 
 <form action="/input/image" method="POST" enctype="multipart/form-data">
 
-<label>Select Crop</label>
+<!-- ✅ LAND AREA -->
+<label>Land Area (Acres)</label>
+<input type="number" name="acre" step="0.1" placeholder="Enter land area (e.g., 2.5)" required>
+
+<!-- ✅ IMAGE UPLOAD -->
+<label style="margin-top:15px;">Upload Crop Image</label>
+<input type="file" name="image" accept="image/*" required onchange="previewImage(event)">
+
+<!-- ✅ IMAGE PREVIEW -->
+<div class="preview">
+    <img id="previewImg">
+</div>
+
 <br>
-
-<select name="crop" required style="width:100%; padding:8px;">
-<option value="">Select Crop</option>
-<option value="Rice">Rice</option>
-<option value="Wheat">Wheat</option>
-<option value="Maize">Maize</option>
-<option value="Cotton">Cotton</option>
-<option value="Sugarcane">Sugarcane</option>
-</select>
-
-<br><br>
-
-<label>Upload Crop Image</label>
-<br>
-
-<input type="file" name="image" accept="image/*" required>
-
-<br><br>
 
 <button type="submit">Predict Yield</button>
 
 </form>
 
-<br>
-
-<a href="/dashboard">Back to Dashboard</a>
+<div class="back">
+<a href="/dashboard">⬅ Back to Dashboard</a>
+</div>
 
 </div>
+
+<script>
+function previewImage(event){
+    const img = document.getElementById("previewImg");
+    img.src = URL.createObjectURL(event.target.files[0]);
+    img.style.display = "block";
+}
+</script>
 
 </body>
 </html>

@@ -4,166 +4,111 @@
     <title>Manual Input</title>
 
     <link rel="stylesheet" href="/static/css/style.css">
-
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
-
-    <!-- Voice Script -->
     <script src="{{ url_for('static', filename='js/voice.js') }}"></script>
-
 </head>
 
 <body>
 
-<h2>✍️ Manual Crop Input</h2>
+<h2>✍️ {{ texts.title_manual if texts else "Manual Input" }}</h2>
 
 <form method="POST">
 
-    <!-- ================= TEMPERATURE ================= -->
+<label>Temperature:</label><br>
+<select id="temperature" name="temperature" required>
+    <option value="low">Low</option>
+    <option value="medium">Medium</option>
+    <option value="high">High</option>
+</select>
 
-    <label>Temperature:</label><br>
+<button type="button" onclick="startVoiceInput('temperature')">🎤 Speak</button>
 
-    <select id="temperature" name="temperature" required>
-        <option value="low">Low</option>
-        <option value="medium">Medium</option>
-        <option value="high">High</option>
-    </select>
+<br><br>
 
-    <button type="button" onclick="startVoiceInput('temperature')" style="margin-top:5px;">
-        🎤 Speak Temperature
-    </button>
+<label>Rainfall:</label><br>
+<select id="rainfall" name="rainfall" required>
+    <option value="low">Low</option>
+    <option value="medium">Medium</option>
+    <option value="high">High</option>
+</select>
 
-    <br><br>
+<button type="button" onclick="startVoiceInput('rainfall')">🎤 Speak</button>
 
+<br><br>
 
-    <!-- ================= RAINFALL ================= -->
+<label>Soil Type:</label><br>
+<select id="soil" name="soil" required>
+    <option value="sandy">Sandy</option>
+    <option value="clay">Clay</option>
+    <option value="loamy">Loamy</option>
+</select>
 
-    <label>Rainfall:</label><br>
+<br><br>
 
-    <select id="rainfall" name="rainfall" required>
-        <option value="low">Low</option>
-        <option value="medium">Medium</option>
-        <option value="high">High</option>
-    </select>
+<label>Crop Type:</label><br>
+<select id="crop_select" onchange="toggleOtherCrop()" required>
 
-    <button type="button" onclick="startVoiceInput('rainfall')" style="margin-top:5px;">
-        🎤 Speak Rainfall
-    </button>
+<option value="">Select Crop</option>
 
-    <br><br>
+<option value="Rice">Rice</option>
+<option value="Wheat">Wheat</option>
+<option value="Maize">Maize</option>
+<option value="Millets">Millets</option>
+<option value="Sorghum">Sorghum</option>
+<option value="Bajra">Bajra</option>
+<option value="Barley">Barley</option>
+<option value="Pulses">Pulses</option>
+<option value="Groundnut">Groundnut</option>
+<option value="Mustard">Mustard</option>
+<option value="Soybean">Soybean</option>
+<option value="Cotton">Cotton</option>
+<option value="Sugarcane">Sugarcane</option>
+<option value="Tea">Tea</option>
+<option value="Coffee">Coffee</option>
 
+<option value="Other">Other</option>
 
-    <!-- ================= SOIL ================= -->
+</select>
 
-    <label>Soil Type:</label><br>
+<br><br>
 
-    <select id="soil" name="soil" required>
-        <option value="sandy">Sandy</option>
-        <option value="clay">Clay</option>
-        <option value="loamy">Loamy</option>
-    </select>
+<div id="other_crop_div" style="display:none;">
+<input type="text" id="other_crop">
+</div>
 
-    <button type="button" onclick="startVoiceInput('soil')" style="margin-top:5px;">
-        🎤 Speak Soil
-    </button>
+<input type="hidden" id="final_crop" name="crop" required>
+<!-- ADD BEFORE SUBMIT BUTTON -->
 
-    <br><br>
+<!-- ✅ NEW: LAND AREA -->
+<label>Land Area (Acres):</label><br>
+<input type="number" name="acre" step="0.1" placeholder="Enter acres" required>
 
+<br><br>
 
-    <!-- ================= CROP TYPE ================= -->
-
-    <label>Crop Type:</label><br>
-
-    <select id="crop_select" onchange="toggleOtherCrop()" required>
-
-        <option value="">-- Select Crop --</option>
-
-        <option value="Rice">Rice</option>
-        <option value="Wheat">Wheat</option>
-        <option value="Maize">Maize</option>
-        <option value="Millets">Millets</option>
-        <option value="Sorghum">Sorghum</option>
-        <option value="Bajra">Bajra</option>
-        <option value="Barley">Barley</option>
-        <option value="Pulses">Pulses</option>
-        <option value="Groundnut">Groundnut</option>
-        <option value="Mustard">Mustard</option>
-        <option value="Soybean">Soybean</option>
-        <option value="Cotton">Cotton</option>
-        <option value="Sugarcane">Sugarcane</option>
-        <option value="Tea">Tea</option>
-        <option value="Coffee">Coffee</option>
-
-        <option value="Other">Other</option>
-
-    </select>
-
-    <br><br>
-
-
-    <!-- ================= OTHER CROP ================= -->
-
-    <div id="other_crop_div" style="display:none;">
-
-        <label>Enter Crop Name:</label><br>
-
-        <input type="text" id="other_crop">
-
-        <button type="button" onclick="startVoiceInput('other_crop')" style="margin-top:5px;">
-            🎤 Speak Crop
-        </button>
-
-        <br><br>
-
-    </div>
-
-
-    <!-- FINAL VALUE SENT -->
-
-    <input type="hidden" id="final_crop" name="crop" required>
-
-
-    <button type="submit">Submit Data</button>
+<button type="submit">Submit</button>
 
 </form>
 
 <br>
-
 <a href="/dashboard">⬅ Back</a>
 
-
 <script>
-
 function toggleOtherCrop(){
-
     const cropSelect = document.getElementById("crop_select");
-
     const otherDiv = document.getElementById("other_crop_div");
-
     const finalCrop = document.getElementById("final_crop");
 
     if(cropSelect.value === "Other"){
-
         otherDiv.style.display = "block";
-
         finalCrop.value = "";
-
     }else{
-
         otherDiv.style.display = "none";
-
         finalCrop.value = cropSelect.value;
-
     }
-
 }
 
-
 document.getElementById("other_crop").addEventListener("input", function(){
-
     document.getElementById("final_crop").value = this.value;
-
 });
-
 </script>
 
 </body>
